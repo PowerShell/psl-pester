@@ -298,39 +298,29 @@ function Get-GroupStartTokenForCommand
     return $CommandIndex + 1
 }
 
-Add-Type -TypeDefinition @'
-    namespace Pester
+function Get-ClosingBraceIndex
+{
+    param (
+        [System.Management.Automation.PSToken[]]$Tokens,
+        [int]$startIndex
+        )
+
+    $groupLevel = 1;
+    $len = $tokens.Length
+    for($i = $startIndex + 1; $i -lt $len; $i++)
     {
-        using System;
-        using System.Management.Automation;
-
-        public static class ClosingBraceFinder
+        if ( $tokens[$i].Type -eq "GroupStart" )
         {
-            public static int GetClosingBraceIndex(PSToken[] tokens, int startIndex)
-            {
-                int groupLevel = 1;
-                int len = tokens.Length;
-
-                for (int i = startIndex + 1; i < len; i++)
-                {
-                    PSTokenType type = tokens[i].Type;
-                    if (type == PSTokenType.GroupStart)
-                    {
-                        groupLevel++;
-                    }
-                    else if (type == PSTokenType.GroupEnd)
-                    {
-                        groupLevel--;
-
-                        if (groupLevel <= 0) { return i; }
-                    }
-                }
-
-                return -1;
-            }
+            $groupLevel++
+        }
+        elseif ( $tokens[$i].Type -eq "GroupEnd" )
+        {
+            $groupLevel--
+            if ( $groupLevel -le 0 ) { return $i }
         }
     }
-'@
+    return -1
+}
 
 function Get-GroupCloseTokenIndex
 {
@@ -339,7 +329,7 @@ function Get-GroupCloseTokenIndex
         [int] $GroupStartTokenIndex
     )
 
-    $closeIndex = [Pester.ClosingBraceFinder]::GetClosingBraceIndex($Tokens, $GroupStartTokenIndex)
+    $closeIndex = Get-ClosingBraceIndex $Tokens $GroupStartTokenIndex
 
     if ($closeIndex -lt 0)
     {
