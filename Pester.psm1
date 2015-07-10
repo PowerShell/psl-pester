@@ -183,7 +183,7 @@ about_pester
     $script:mockTable = @{}
 
     $pester = New-PesterState -TestNameFilter $TestName -TagFilter ($Tag -split "\s") -ExcludeTagFilter ($ExcludeTag -split "\s") -SessionState $PSCmdlet.SessionState -Strict:$Strict -Quiet:$Quiet
-    Enter-CoverageAnalysis -CodeCoverage $CodeCoverage -PesterState $pester
+    #Enter-CoverageAnalysis -CodeCoverage $CodeCoverage -PesterState $pester
 
     Write-Screen "`r`n`r`n`r`n`r`n"
 
@@ -221,9 +221,9 @@ about_pester
     }
 
     $pester | Write-PesterReport
-    $coverageReport = Get-CoverageReport -PesterState $pester
-    Show-CoverageReport -CoverageReport $coverageReport
-    Exit-CoverageAnalysis -PesterState $pester
+    #$coverageReport = Get-CoverageReport -PesterState $pester
+    #Show-CoverageReport -CoverageReport $coverageReport
+    #Exit-CoverageAnalysis -PesterState $pester
 
     if(Get-Variable -Name OutputFile -ValueOnly -ErrorAction $script:IgnoreErrorPreference) {
         Export-PesterResults -PesterState $pester -Path $OutputFile -Format $OutputFormat
