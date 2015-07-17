@@ -13,7 +13,7 @@ else
 
 $moduleRoot = Split-Path -Path $MyInvocation.MyCommand.Path
 
-"$moduleRoot\Functions\*.ps1", "$moduleRoot\Functions\Assertions\*.ps1" |
+"$moduleRoot/Functions/*.ps1", "$moduleRoot/Functions/Assertions/*.ps1" |
 Resolve-Path |
 Where-Object { -not ($_.ProviderPath.ToLower().Contains(".tests.")) } |
 ForEach-Object { . $_.ProviderPath }
@@ -372,7 +372,7 @@ function Get-ScriptBlockScope
     [scriptblock].GetProperty('SessionStateInternal', $flags).GetValue($ScriptBlock, $null)
 }
 
-$snippetsDirectoryPath = "$PSScriptRoot\Snippets"
+$snippetsDirectoryPath = "$PSScriptRoot/Snippets"
 if ((Test-Path -Path Variable:\psise) -and ($null -ne $psISE) -and ($PSVersionTable.PSVersion.Major -ge 3) -and (Test-Path $snippetsDirectoryPath))
 {
     Import-IseSnippet -Path $snippetsDirectoryPath
