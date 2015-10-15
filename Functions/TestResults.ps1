@@ -388,11 +388,8 @@ function Write-NUnitTestCaseAttributes($TestResult, [System.Xml.XmlWriter] $XmlW
     }
 }
 function Get-RunTimeEnvironment() {
-    $osSystemInformation = (Get-WmiObject Win32_OperatingSystem)
     @{
         'nunit-version' = '2.5.8.0'
-        'os-version' = $osSystemInformation.Version
-        platform = $osSystemInformation.Name
         cwd = (Get-Location).Path #run path
         'machine-name' = $env:ComputerName
         user = $env:Username
