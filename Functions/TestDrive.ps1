@@ -39,7 +39,7 @@ function Clear-TestDrive ([String[]]$Exclude) {
 function New-RandomTempDirectory {
     do
     {
-        $Path = Join-Path -Path $env:TEMP -ChildPath ([Guid]::NewGuid())
+        $Path = Join-Path -Path $env:TEMP -ChildPath ([Guid]::NewGuid().ToString())
     } until (-not (  Microsoft.PowerShell.Management\Test-Path -Path $Path ))
 
     New-Item -ItemType Container -Path $Path

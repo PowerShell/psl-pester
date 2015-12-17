@@ -372,7 +372,8 @@ function Get-ParameterDictionary
         [scriptblock] $ScriptBlock
     )
 
-    $guid = [guid]::NewGuid().Guid
+    $guid = [guid]::NewGuid().ToString()
+    echo guid is $guid
 
     try
     {
