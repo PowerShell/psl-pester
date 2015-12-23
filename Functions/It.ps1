@@ -373,7 +373,6 @@ function Get-ParameterDictionary
     )
 
     $guid = [guid]::NewGuid().ToString()
-    echo guid is $guid
 
     try
     {
