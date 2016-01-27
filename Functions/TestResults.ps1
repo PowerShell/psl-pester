@@ -401,6 +401,8 @@ function Get-RunTimeEnvironment() {
         user = $env:Username
         'user-domain' = $env:userDomain
         'clr-version' = [string]$PSVersionTable.ClrVersion
+        'os-Version' = $True
+        platform = $True
     }
 }
 

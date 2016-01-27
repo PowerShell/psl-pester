@@ -1,5 +1,5 @@
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
-. "$here\Add-Numbers.ps1"
+. (Join-Path -Path $here -ChildPath Add-Numbers.ps1)
 
 Describe -Tags "Example" "Add-Numbers" {
 

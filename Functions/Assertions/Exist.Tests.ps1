@@ -11,8 +11,8 @@ InModuleScope Pester {
         }
 
         It 'works for path with escaped [ ] characters' {
-            New-Item -Path "TestDrive:\[test].txt" -ItemType File | Out-Null
-            "TestDrive:\``[test``].txt"  | Should Exist
+            New-Item -Path $TestDrive -Name "[test].txt" -ItemType File | Out-Null
+            (Join-Path -Path $TestDrive -ChildPath "``[test``].txt")  | Should Exist
         }
 
         It 'returns correct result for function drive' {

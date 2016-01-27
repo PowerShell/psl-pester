@@ -6,13 +6,14 @@
     $job = Start-Job {
         param ($PesterPath, $TestDrive, $ScriptBlock)
         Import-Module $PesterPath -Force | Out-Null
-        $ScriptBlock | Set-Content $TestDrive\Temp.Tests.ps1 | Out-Null
+        $TestFile = Join-Path -Path $TestDrive -ChildPath "Temp.Tests.ps1"
+        $ScriptBlock | Set-Content $TestFile | Out-Null
 
         Invoke-Pester -PassThru -Path $TestDrive
 
-    } -ArgumentList  $PesterPath, $TestDrive, $ScriptBlock
+    } -ArgumentList  $PesterPath, $TestDrive.FullName, $ScriptBlock
+    $job | format-list *
     $job | Wait-Job | Out-Null
-
     #not using Recieve-Job to ignore any output to Host
     #TODO: how should this handle errors?
     #$job.Error | foreach { throw $_.Exception  }

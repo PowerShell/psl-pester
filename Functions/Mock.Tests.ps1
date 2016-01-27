@@ -142,31 +142,31 @@ Describe 'When calling Mock on a filter' {
 }
 
 Describe 'When calling Mock on an external script' {
-    $ps1File = New-Item 'TestDrive:\tempExternalScript.ps1' -ItemType File -Force
+    $ps1File = New-Item (Join-Path -Path $TestDrive -ChildPath tempExternalScript.ps1) -ItemType File -Force
     $ps1File | Set-Content -Value "'I am tempExternalScript.ps1'"
 
-    Mock 'TestDrive:\tempExternalScript.ps1' {return 'I am not tempExternalScript.ps1'}
+    Mock (Join-Path -Path $TestDrive -ChildPath tempExternalScript.ps1) {return 'I am not tempExternalScript.ps1'}
 
     <#
         # Invoking the script using its absolute path is not supported
 
-        $result = TestDrive:\tempExternalScript.ps1
+        $result = Join-Path -Path $TestDrive -ChildPath tempExternalScript.ps1
         It 'Should Invoke the absolute-path-qualified mocked script using just the script name' {
             $result | Should Be 'I am not tempExternalScript.ps1'
         }
 
-        $result = & TestDrive:\tempExternalScript.ps1
+        $result = & (Join-Path -Path $TestDrive -ChildPath tempExternalScript.ps1)
         It 'Should Invoke the absolute-path-qualified mocked script using the command-invocation operator (&)' {
             $result | Should Be 'I am not tempExternalScript.ps1'
         }
 
-        $result = . TestDrive:\tempExternalScript.ps1
+        $result = . (Join-Path -Path $TestDrive -ChildPath tempExternalScript.ps1)
         It 'Should Invoke the absolute-path-qualified mocked script using dot source notation' {
             $result | Should Be 'I am not tempExternalScript.ps1'
         }
     #>
 
-    Push-Location TestDrive:\
+    Push-Location $TestDrive
 
     try
     {
