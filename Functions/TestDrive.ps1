@@ -104,10 +104,10 @@ function Setup {
     $TestDriveName = Get-PSDrive TestDrive | Select -ExpandProperty Root
 
     if ($Dir) {
-        $item = New-Item -Name $Path -Path "${TestDriveName}\" -Type Container -Force
+        $item = New-Item -Name $Path -Path "${TestDriveName}" -Type Container -Force
     }
     if ($File) {
-        $item = $Content | New-Item -Name $Path -Path "${TestDriveName}\" -Type File -Force
+        $item = $Content | New-Item -Name $Path -Path "${TestDriveName}" -Type File -Force
     }
 
     if($PassThru) {

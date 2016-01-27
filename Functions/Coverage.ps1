@@ -572,5 +572,5 @@ function Get-CommonParentPath
 function Get-RelativePath
 {
     param ( [string] $Path, [string] $RelativeTo )
-    return $Path -replace "^$([regex]::Escape($RelativeTo))\\?"
+    return $Path -replace "^$([regex]::Escape($RelativeTo))[\\/]?"
 }

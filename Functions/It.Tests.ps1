@@ -210,7 +210,7 @@ Describe 'Get-PesterResult' {
     It 'records the correct stack line number of failed tests in another file' {
         $errorRecord = $null
 
-        $testPath = Join-Path $TestDrive test.ps1
+        $testPath = Join-Path $TestDrive.FullName test.ps1
         $escapedTestPath = [regex]::Escape($testPath)
 
         Set-Content -Path $testPath -Value "`r`n'One' | Should Be 'Two'"

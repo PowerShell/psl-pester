@@ -1,12 +1,13 @@
 ﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-$manifestPath   = "$here\Pester.psd1"
-$changeLogPath = "$here\CHANGELOG.md"
+$manifestPath  = (Join-Path -Path $here -ChildPath "Pester.psd1")
+$changeLogPath = (Join-Path -Path $here -ChildPath "CHANGELOG.md")
 
 # DO NOT CHANGE THIS TAG NAME; IT AFFECTS THE CI BUILD.
 
 Describe -Tags 'VersionChecks' "Pester manifest and changelog" {
     $script:manifest = $null
+
     It "has a valid manifest" {
         {
             $script:manifest = Test-ModuleManifest -Path $manifestPath -ErrorAction Stop -WarningAction SilentlyContinue
@@ -87,7 +88,7 @@ Describe 'Style rules' {
 
     $files = @(
         Get-ChildItem $pesterRoot -Include *.ps1,*.psm1
-        Get-ChildItem $pesterRoot\Functions -Include *.ps1,*.psm1 -Recurse
+        Get-ChildItem (Join-Path -Path $pesterRoot -ChildPath "Functions") -Include *.ps1,*.psm1 -Recurse
     )
 
     It 'Pester source files contain no trailing whitespace' {
@@ -138,21 +139,22 @@ InModuleScope Pester {
         Setup -File SomeFile.Tests.ps1
         Setup -File SomeOtherFile.ps1
         Setup -File SomeOtherFile.Tests.ps1
+        $expectedPath = (Join-Path -Path $TestDrive -ChildPath "SomeFile.ps1")
 
         It 'Resolves non-wildcarded file paths regardless of whether the file ends with Tests.ps1' {
-            $result = @(ResolveTestScripts $TestDrive\SomeOtherFile.ps1)
+            $result = @(ResolveTestScripts $expectedPath)
             $result.Count | Should Be 1
-            $result[0].Path | Should Be "$TestDrive\SomeOtherFile.ps1"
+            $result[0].Path | Should Be $expectedPath
         }
 
         It 'Finds only *.Tests.ps1 files when the path contains wildcards' {
-            $result = @(ResolveTestScripts $TestDrive\*.ps1)
+            $result = @(ResolveTestScripts (Join-Path -Path $TestDrive -ChildPath "*.ps1"))
             $result.Count | Should Be 2
 
             $paths = $result | Select-Object -ExpandProperty Path
 
-            ($paths -contains "$TestDrive\SomeFile.Tests.ps1") | Should Be $true
-            ($paths -contains "$TestDrive\SomeOtherFile.Tests.ps1") | Should Be $true
+            ($paths -contains (Resolve-Path (Join-Path -Path $TestDrive -ChildPath "SomeFile.Tests.ps1"))) | Should Be $true
+            ($paths -contains (Resolve-Path (Join-Path -Path $TestDrive -ChildPath "SomeOtherFile.Tests.ps1"))) | Should Be $true
         }
 
         It 'Finds only *.Tests.ps1 files when the path refers to a directory and does not contain wildcards' {
@@ -162,15 +164,15 @@ InModuleScope Pester {
 
             $paths = $result | Select-Object -ExpandProperty Path
 
-            ($paths -contains "$TestDrive\SomeFile.Tests.ps1") | Should Be $true
-            ($paths -contains "$TestDrive\SomeOtherFile.Tests.ps1") | Should Be $true
+            ($paths -contains (Resolve-Path (Join-Path -Path $TestDrive -ChildPath "SomeFile.Tests.ps1"))) | Should Be $true
+            ($paths -contains (Resolve-Path (Join-Path -Path $TestDrive -ChildPath "SomeOtherFile.Tests.ps1"))) | Should Be $true
         }
 
         It 'Assigns empty array and hashtable to the Arguments and Parameters properties when none are specified by the caller' {
-            $result = @(ResolveTestScripts "$TestDrive\SomeFile.ps1")
+            $result = @(ResolveTestScripts $expectedPath)
 
             $result.Count | Should Be 1
-            $result[0].Path | Should Be "$TestDrive\SomeFile.ps1"
+            $result[0].Path | Should Be $expectedPath
 
             ,$result[0].Arguments | Should Not Be $null
             ,$result[0].Parameters | Should Not Be $null
@@ -184,38 +186,38 @@ InModuleScope Pester {
 
         Context 'Passing in Dictionaries instead of Strings' {
             It 'Allows the use of a "P" key instead of "Path"' {
-                $result = @(ResolveTestScripts @{ P = "$TestDrive\SomeFile.ps1" })
+                $result = @(ResolveTestScripts @{ P = $expectedPath })
 
                 $result.Count | Should Be 1
-                $result[0].Path | Should Be "$TestDrive\SomeFile.ps1"
+                $result[0].Path | Should Be $expectedPath
             }
 
             $testArgs = @('I am a string')
             It 'Allows the use of an "Arguments" key in the dictionary' {
-                $result = @(ResolveTestScripts @{ Path = "$TestDrive\SomeFile.ps1"; Arguments = $testArgs })
+                $result = @(ResolveTestScripts @{ Path = $expectedPath; Arguments = $testArgs })
 
                 $result.Count | Should Be 1
-                $result[0].Path | Should Be "$TestDrive\SomeFile.ps1"
+                $result[0].Path | Should Be $expectedPath
 
                 $result[0].Arguments.Count | Should Be 1
                 $result[0].Arguments[0] | Should Be 'I am a string'
             }
 
             It 'Allows the use of an "Args" key in the dictionary' {
-                $result = @(ResolveTestScripts @{ Path = "$TestDrive\SomeFile.ps1"; Args = $testArgs })
+                $result = @(ResolveTestScripts @{ Path = $expectedPath; Args = $testArgs })
 
                 $result.Count | Should Be 1
-                $result[0].Path | Should Be "$TestDrive\SomeFile.ps1"
+                $result[0].Path | Should Be $expectedPath
 
                 $result[0].Arguments.Count | Should Be 1
                 $result[0].Arguments[0] | Should Be 'I am a string'
             }
 
             It 'Allows the use of an "A" key in the dictionary' {
-                $result = @(ResolveTestScripts @{ Path = "$TestDrive\SomeFile.ps1"; A = $testArgs })
+                $result = @(ResolveTestScripts @{ Path = $expectedPath; A = $testArgs })
 
                 $result.Count | Should Be 1
-                $result[0].Path | Should Be "$TestDrive\SomeFile.ps1"
+                $result[0].Path | Should Be $expectedPath
 
                 $result[0].Arguments.Count | Should Be 1
                 $result[0].Arguments[0] | Should Be 'I am a string'
@@ -223,20 +225,20 @@ InModuleScope Pester {
 
             $testParams = @{ MyKey = 'MyValue' }
             It 'Allows the use of a "Parameters" key in the dictionary' {
-                $result = @(ResolveTestScripts @{ Path = "$TestDrive\SomeFile.ps1"; Parameters = $testParams })
+                $result = @(ResolveTestScripts @{ Path = $expectedPath; Parameters = $testParams })
 
                 $result.Count | Should Be 1
-                $result[0].Path | Should Be "$TestDrive\SomeFile.ps1"
+                $result[0].Path | Should Be $expectedPath
 
                 $result[0].Parameters.PSBase.Count | Should Be 1
                 $result[0].Parameters['MyKey'] | Should Be 'MyValue'
             }
 
             It 'Allows the use of a "Params" key in the dictionary' {
-                $result = @(ResolveTestScripts @{ Path = "$TestDrive\SomeFile.ps1"; Params = $testParams })
+                $result = @(ResolveTestScripts @{ Path = $expectedPath; Params = $testParams })
 
                 $result.Count | Should Be 1
-                $result[0].Path | Should Be "$TestDrive\SomeFile.ps1"
+                $result[0].Path | Should Be $expectedPath
 
                 $result[0].Parameters.PSBase.Count | Should Be 1
                 $result[0].Parameters['MyKey'] | Should Be 'MyValue'
