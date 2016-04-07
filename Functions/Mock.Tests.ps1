@@ -215,12 +215,20 @@ Describe 'When calling Mock on an external script' {
 
 Describe 'When calling Mock on an application command' {
     # Mock schtasks.exe {return 'I am not schtasks.exe'}
-    Mock ifconfig { return 'I am not ifconfig' }
-
-    $result = ifconfig
-
-    It 'Should Invoke the mocked script' {
-        $result | Should Be 'I am not ifconfig'
+    if ( $IsWindows ) {
+        Mock ipconfig { return 'I am not ipconfig' }
+        $result = ipconfig
+        It 'Should Invoke the mocked script' {
+            $result | Should Be 'I am not ipconfig'
+        }
+    }
+    else
+    {
+        Mock ifconfig { return 'I am not ifconfig' }
+        $result = ifconfig
+        It 'Should Invoke the mocked script' {
+            $result | Should Be 'I am not ifconfig'
+        }
     }
 }
 
