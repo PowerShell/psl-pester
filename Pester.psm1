@@ -2,6 +2,8 @@
 # Version: $version$
 # Changeset: $sha$
 
+
+
 if ($PSVersionTable.PSVersion.Major -ge 3)
 {
     $script:IgnoreErrorPreference = 'Ignore'
@@ -12,6 +14,7 @@ else
 }
 
 $moduleRoot = Split-Path -Path $MyInvocation.MyCommand.Path
+$global:DirectorySeparatorChar = [io.path]::DirectorySeparatorChar
 
 "$moduleRoot/Functions/*.ps1", "$moduleRoot/Functions/Assertions/*.ps1" |
 Resolve-Path |
