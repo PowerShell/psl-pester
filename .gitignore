@@ -1,3 +1,9 @@
-build/
-Test.xml
-vendor/packages/
+.gitignore
+Relative2-Fixture.Tests.ps1
+Relative2-Fixture.ps1
+Relative3-Fixture.Tests.ps1
+Relative3-Fixture.ps1
+Test-Fixture.Tests.ps1
+Test-Fixture.ps1
+existingfile.txt
+relative/

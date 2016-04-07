@@ -1,0 +1,10 @@
+language: cpp
+sudo: required
+dist: trusty
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y libicu52 libunwind8
+  - ./download.sh
+  - sudo dpkg -i ./powershell.deb
+script:
+  - powershell -c "Invoke-Pester -EnableExit"
