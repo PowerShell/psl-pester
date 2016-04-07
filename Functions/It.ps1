@@ -376,13 +376,13 @@ function Get-ParameterDictionary
 
     try
     {
-        Set-Content function:\$guid $ScriptBlock
+        Set-Content function:/$guid $ScriptBlock
         $metadata = [System.Management.Automation.CommandMetadata](Get-Command -Name $guid -CommandType Function)
 
         return $metadata.Parameters
     }
     finally
     {
-        if (Test-Path function:\$guid) { Remove-Item function:\$guid }
+        if (Test-Path function:/$guid) { Remove-Item function:/$guid }
     }
 }
