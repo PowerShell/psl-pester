@@ -10,17 +10,17 @@ function New-Fixture {
     placed in the current directory and are called and populated as such:
 
 
-    The script defining the funciton: .\Clean.ps1:
+    The script defining the funciton: ./Clean.ps1:
 
     function Clean {
 
     }
 
-    The script containg the example test .\Clean.Tests.ps1:
+    The script containg the example test ./Clean.Tests.ps1:
 
     $here = Split-Path -Parent $MyInvocation.MyCommand.Path
     $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
-    . "$here\$sut"
+    . "$here/$sut"
 
     Describe "Clean" {
 
@@ -43,9 +43,9 @@ function New-Fixture {
     Creates the scripts in the current directory.
 
     .EXAMPLE
-    New-Fixture C:\Projects\Cleaner Clean
+    New-Fixture C:/Projects/Cleaner Clean
 
-    Creates the scripts in the C:\Projects\Cleaner directory.
+    Creates the scripts in the C:/Projects/Cleaner directory.
 
     .EXAMPLE
     New-Fixture Cleaner Clean
@@ -71,7 +71,7 @@ function New-Fixture {
 
     $testCode = '$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
-. "$here\$sut"
+. "$here/$sut"
 
 Describe "#name#" {
     It "does something useful" {

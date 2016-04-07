@@ -1,28 +1,30 @@
-﻿function Invoke-PesterInJob ($ScriptBlock)
+﻿function Invoke-PesterInJob ($ScriptBlock, $TestDrive)
 {
     #TODO: there must be a safer way to determine this while I am in describe
-    $PesterPath = Get-Module -Name Pester | Select -First 1 -ExpandProperty Path
+    $PesterPath = (Get-Module -Name Pester).ModuleBase
+    # TEMP
+    # $PesterPath = "/home/james/PowerShell/src/Modules/Pester"
 
-    $job = Start-Job {
-        param ($PesterPath, $TestDrive, $ScriptBlock)
-        Import-Module $PesterPath -Force | Out-Null
-        $ScriptBlock | Set-Content $TestDrive\Temp.Tests.ps1 | Out-Null
+    $ps = [powershell]::Create("NewRunspace")
 
-        Invoke-Pester -PassThru -Path $TestDrive
+    $null = $ps.AddCommand("Import-Module").AddParameter("Name", $PesterPath)
+    $null = $ps.Invoke()
+    $ps.Commands.Clear()
 
-    } -ArgumentList  $PesterPath, $TestDrive, $ScriptBlock
-    $job | Wait-Job | Out-Null
+    $null = $ps.AddCommand("Set-Content").AddParameter("Path","$TestDrive/Temp.Tests.ps1").AddParameter("Value",$scriptblock)
+    $null = $ps.Invoke()
+    $ps.Commands.Clear()
 
-    #not using Recieve-Job to ignore any output to Host
-    #TODO: how should this handle errors?
-    #$job.Error | foreach { throw $_.Exception  }
-    $job.Output
-    $job.ChildJobs| foreach {
-        $childJob = $_
-        #$childJob.Error | foreach { throw $_.Exception }
-        $childJob.Output
+    $ps.AddStatement().AddCommand("Invoke-Pester").AddParameter("PassThru",$true).AddPArameter("Path","$TestDrive/")
+    $results = $ps.Invoke()
+    $ps.Commands.Clear()
+
+    if ( $ps.streams.Error.count -gt 0 )
+    {
+        throw $ps.streams.Error[0]
     }
-    $job | Remove-Job
+    $results
+
 }
 
 Describe "Tests running in clean runspace" {
@@ -42,7 +44,7 @@ Describe "Tests running in clean runspace" {
             }
         }
 
-        $result = Invoke-PesterInJob -ScriptBlock $TestSuite
+        $result = Invoke-PesterInJob -ScriptBlock $TestSuite -TestDrive $TESTDRIVE
         $result.SkippedCount | Should Be 3
         $result.PendingCount | Should Be 4
         $result.TotalCount | Should Be 7
@@ -58,7 +60,7 @@ Describe "Tests running in clean runspace" {
             }
         }
 
-        $result = Invoke-PesterInJob -ScriptBlock $TestSuite
+        $result = Invoke-PesterInJob -ScriptBlock $TestSuite -TestDrive $TESTDRIVE
         $result.PassedCount | Should Be 0
         $result.FailedCount | Should Be 1
 
@@ -76,7 +78,7 @@ Describe "Tests running in clean runspace" {
             }
         }
 
-        $result = Invoke-PesterInJob -ScriptBlock $TestSuite
+        $result = Invoke-PesterInJob -ScriptBlock $TestSuite -TestDrive $TESTDRIVE
         $result.PassedCount | Should Be 1
         $result.FailedCount | Should Be 1
         $result.SkippedCount | Should Be 1
@@ -110,7 +112,7 @@ Describe 'Guarantee It fail on setup or teardown fail (running in clean runspace
             }
         }
 
-        $result = Invoke-PesterInJob -ScriptBlock $testSuite
+        $result = Invoke-PesterInJob -ScriptBlock $testSuite -TestDrive $TESTDRIVE
 
         $result.FailedCount | Should Be 1
         $result.TestResult[0].FailureMessage | Should Be "test exception"
@@ -134,7 +136,7 @@ Describe 'Guarantee It fail on setup or teardown fail (running in clean runspace
             }
         }
 
-        $result = Invoke-PesterInJob -ScriptBlock $testSuite
+        $result = Invoke-PesterInJob -ScriptBlock $testSuite -TestDrive $TESTDRIVE
 
         if ($result.PendingCount -ne 1)
         {
