@@ -20,7 +20,7 @@ function New-Fixture {
 
     $here = Split-Path -Parent $MyInvocation.MyCommand.Path
     $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
-    . "$here/$sut"
+    . "$here${directorySeparatorChar}$sut"
 
     Describe "Clean" {
 
@@ -71,7 +71,7 @@ function New-Fixture {
 
     $testCode = '$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
-. "$here/$sut"
+. "$here${directorySeparatorChar}$sut"
 
 Describe "#name#" {
     It "does something useful" {

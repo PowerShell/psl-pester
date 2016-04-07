@@ -65,7 +65,9 @@ VariablesToExport = @(
     'CommandCoverage',
     'BeforeEach',
     'AfterEach',
-    'Strict'
+    'Strict',
+    'DirectorySeparatorChar'
+
 )
 
 # # Aliases to export from this module

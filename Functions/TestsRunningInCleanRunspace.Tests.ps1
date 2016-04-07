@@ -2,8 +2,6 @@
 {
     #TODO: there must be a safer way to determine this while I am in describe
     $PesterPath = (Get-Module -Name Pester).ModuleBase
-    # TEMP
-    # $PesterPath = "/home/james/PowerShell/src/Modules/Pester"
 
     $ps = [powershell]::Create("NewRunspace")
 
@@ -11,11 +9,11 @@
     $null = $ps.Invoke()
     $ps.Commands.Clear()
 
-    $null = $ps.AddCommand("Set-Content").AddParameter("Path","$TestDrive/Temp.Tests.ps1").AddParameter("Value",$scriptblock)
+    $null = $ps.AddCommand("Set-Content").AddParameter("Path","$TestDrive${directorySeparatorChar}Temp.Tests.ps1").AddParameter("Value",$scriptblock)
     $null = $ps.Invoke()
     $ps.Commands.Clear()
 
-    $ps.AddStatement().AddCommand("Invoke-Pester").AddParameter("PassThru",$true).AddPArameter("Path","$TestDrive/")
+    $ps.AddStatement().AddCommand("Invoke-Pester").AddParameter("PassThru",$true).AddPArameter("Path","$TestDrive${directorySeparatorChar}")
     $results = $ps.Invoke()
     $ps.Commands.Clear()
 

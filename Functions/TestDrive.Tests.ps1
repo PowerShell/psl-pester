@@ -10,7 +10,7 @@ Describe "Setup" {
     }
 
     It "creates a drive location called TestDrive:" {
-        "TestDrive:/" | Should Exist
+        "TestDrive:${directorySeparatorChar}" | Should Exist
     }
 }
 
@@ -26,25 +26,25 @@ Describe "Create filesystem with directories" {
     Setup -Dir "dir2"
 
     It "creates directory when called with no file content" {
-        "TestDrive:/dir1" | Should Exist
+        "TestDrive:${directorySeparatorChar}dir1" | Should Exist
     }
 
     It "creates another directory when called with no file content and doesnt remove first directory" {
-        $result = Test-Path "TestDrive:/dir2"
-        $result = $result -and (Test-Path "TestDrive:/dir1")
+        $result = Test-Path "TestDrive:${directorySeparatorChar}dir2"
+        $result = $result -and (Test-Path "TestDrive:${directorySeparatorChar}dir1")
         $result | Should Be $true
     }
 }
 
 Describe "Create nested directory structure" {
-    Setup -Dir "parent/child"
+    Setup -Dir "parent${directorySeparatorChar}child"
 
     It "creates parent directory" {
-        "TestDrive:/parent" | Should Exist
+        "TestDrive:${directorySeparatorChar}parent" | Should Exist
     }
 
     It "creates child directory underneath parent" {
-        "TestDrive:/parent/child" | Should Exist
+        "TestDrive:${directorySeparatorChar}parent${directorySeparatorChar}child" | Should Exist
     }
 }
 
@@ -52,11 +52,11 @@ Describe "Create a file with no content" {
     Setup -File "file"
 
     It "creates file" {
-        "TestDrive:/file" | Should Exist
+        "TestDrive:${directorySeparatorChar}file" | Should Exist
     }
 
     It "also has no content" {
-        Get-Content "TestDrive:/file" | Should BeNullOrEmpty
+        Get-Content "TestDrive:${directorySeparatorChar}file" | Should BeNullOrEmpty
     }
 }
 
@@ -64,11 +64,11 @@ Describe "Create a file with content" {
     Setup -File "file" "file contents"
 
     It "creates file" {
-        "TestDrive:/file" | Should Exist
+        "TestDrive:${directorySeparatorChar}file" | Should Exist
     }
 
     It "adds content to the file" {
-        Get-Content "TestDrive:/file" | Should Be "file contents"
+        Get-Content "TestDrive:${directorySeparatorChar}file" | Should Be "file contents"
     }
 }
 
@@ -101,16 +101,16 @@ Describe "TestDrive scoping" {
 
         It "Creates It-scoped contents" {
             Setup -File 'It'
-            'TestDrive:/It' | Should Exist
+            "TestDrive:${directorySeparatorChar}It" | Should Exist
         }
 
         It "Does not clear It-scoped contents on exit" {
-            'TestDrive:/It' | Should Exist
+            "TestDrive:${directorySeparatorChar}It" | Should Exist
         }
     }
 
     It "Context file are removed when returning to Describe" {
-        "TestDrive:/Context" | Should Not Exist
+        "TestDrive:${directorySeparatorChar}Context" | Should Not Exist
     }
 
     It "Describe file is still available in Describe" {
@@ -124,11 +124,11 @@ Describe "Cleanup" {
 
 Describe "Cleanup" {
     It "should have removed the temp folder from the previous fixture" {
-        Test-Path "$TestDrive/foo" | Should Not Exist
+        Test-Path "$TestDrive${directorySeparatorChar}foo" | Should Not Exist
     }
 
     It "should also remove the TestDrive:" {
-        Test-Path "TestDrive:/foo" | Should Not Exist
+        Test-Path "TestDrive:${directorySeparatorChar}foo" | Should Not Exist
     }
 }
 
@@ -142,7 +142,7 @@ Describe "Cleanup when Remove-Item is mocked" {
     Context "next context" {
 
         It "should have removed the temp folder" {
-            "$TestDrive/foo" | Should Not Exist
+            "$TestDrive${directorySeparatorChar}foo" | Should Not Exist
         }
 
     }
