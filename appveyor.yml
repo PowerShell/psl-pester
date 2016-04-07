@@ -1,0 +1,21 @@
+image: Visual Studio 2015
+
+build: false
+
+test_script:
+  - ps: |
+      # Fail tests execution, if any PS error detected
+      $ErrorActionPreference = 'Stop'
+      # Run tests
+      Write-Host -Foreground Green 'Run tests'
+      Import-Module -Verbose -Force ./Pester.psd1
+      Invoke-Pester -OutputFormat NUnitXml -OutputFile TestsResults.xml
+      # Fail the build if tests failed
+      $x = [xml](cat -raw TestsResults.xml)
+      if ([int]$x.'test-results'.failures -gt 0)
+      {
+        throw "$($x.'test-results'.failures) tests failed"
+      }
+
+artifacts:
+  - path: TestResults.xml
