@@ -26,7 +26,7 @@
 }
 
 Describe "Tests running in clean runspace" {
-    It "It - Skip and Pending tests" {
+    It -pending "It - Skip and Pending tests" {
         #tests to be run in different runspace using different Pester instance
         $TestSuite = {
             Describe 'It - Skip and Pending tests' {
@@ -48,7 +48,7 @@ Describe "Tests running in clean runspace" {
         $result.TotalCount | Should Be 7
     }
 
-    It "It - It without ScriptBlock fails" {
+    It -pending "It - It without ScriptBlock fails" {
         #tests to be run in different runspace using different Pester instance
         $TestSuite = {
             Describe 'It without ScriptBlock fails' {
@@ -65,7 +65,7 @@ Describe "Tests running in clean runspace" {
         $result.TotalCount | Should Be 1
     }
 
-    It "Invoke-Pester - PassThru output" {
+    It -pending "Invoke-Pester - PassThru output" {
         #tests to be run in different runspace using different Pester instance
         $TestSuite = {
             Describe 'PassThru output' {
@@ -97,7 +97,7 @@ Describe 'Guarantee It fail on setup or teardown fail (running in clean runspace
     #   running next test. For the same reason I am putting the "ensure all tests run" tests here. otherwise you get false positives because you cannot determine
     #   if the suite failed because of the whole suite failed or just a single test failed.
 
-    It 'It fails if BeforeEach fails' {
+    It -pending 'It fails if BeforeEach fails' {
         $testSuite = {
             Describe 'Guarantee It fail on setup or teardown fail' {
                 BeforeEach {
@@ -116,7 +116,7 @@ Describe 'Guarantee It fail on setup or teardown fail (running in clean runspace
         $result.TestResult[0].FailureMessage | Should Be "test exception"
     }
 
-    It 'It fails if AfterEach fails' {
+    It -pending 'It fails if AfterEach fails' {
         $testSuite = {
             Describe 'Guarantee It fail on setup or teardown fail' {
                 It 'It fails if AfterEach fails' {
