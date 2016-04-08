@@ -570,7 +570,9 @@ InModuleScope Pester {
 
         It "Resolves full path correctly" {
             #GetFullPath C:/Windows/System32/notepad.exe | Should Be C:/Windows/System32/notepad.exe
-            if ( $IsWindows ) {
+            if ( Test-Path Variable:IsWindows ) { $onWindows = $IsWindows }
+            else { $onWindows = $true }
+            if ( $onWindows ) {
                 GetFullPath ${env:windir}/System32/lsass.exe | should be ${env:windir}\System32\lsass.exe
             }
             else {

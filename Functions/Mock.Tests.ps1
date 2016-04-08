@@ -215,7 +215,9 @@ Describe 'When calling Mock on an external script' {
 
 Describe 'When calling Mock on an application command' {
     # Mock schtasks.exe {return 'I am not schtasks.exe'}
-    if ( $IsWindows ) {
+    if ( Test-Path Variable:IsWindows ) { $onWindows = $IsWindows }
+    else { $onWindows = $true }
+    if ( $onWindows ) {
         Mock ipconfig { return 'I am not ipconfig' }
         $result = ipconfig
         It 'Should Invoke the mocked script' {
