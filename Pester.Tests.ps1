@@ -46,7 +46,7 @@ Describe -Tags 'VersionChecks' "Pester manifest and changelog" {
 
     if (Get-Command git.exe -ErrorAction SilentlyContinue) {
         $script:tagVersion = $null
-        It "is tagged with a valid version" {
+        It -pending "is tagged with a valid version" {
             $thisCommit = git.exe log --decorate --oneline HEAD~1..HEAD
 
             if ($thisCommit -match 'tag:\s*(\d+(?:\.\d+)*)')
@@ -58,7 +58,7 @@ Describe -Tags 'VersionChecks' "Pester manifest and changelog" {
             $script:tagVersion -as [Version]    | Should Not BeNullOrEmpty
         }
 
-        It "all versions are the same" {
+        It -pending "all versions are the same" {
             $script:changelogVersion -as [Version] | Should be ( $script:manifest.Version -as [Version] )
             $script:manifest.Version -as [Version] | Should be ( $script:tagVersion -as [Version] )
         }

@@ -218,8 +218,8 @@ Describe 'When calling Mock on an application command' {
     if ( Test-Path Variable:IsWindows ) { $onWindows = $IsWindows }
     else { $onWindows = $true }
     if ( $onWindows ) {
-        Mock ipconfig { return 'I am not ipconfig' }
-        $result = ipconfig
+        Mock ipconfig.exe { return 'I am not ipconfig' }
+        $result = ipconfig.exe
         It 'Should Invoke the mocked script' {
             $result | Should Be 'I am not ipconfig'
         }
