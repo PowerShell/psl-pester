@@ -6,7 +6,7 @@
     $ps = [powershell]::Create("NewRunspace")
 
     $null = $ps.AddCommand("Import-Module").AddParameter("Name", "$PesterPath/Pester.psd1")
-    $ = $ps.Invoke()
+    $null = $ps.Invoke()
     $ps.Commands.Clear()
 
     $null = $ps.AddCommand("Set-Content").AddParameter("Path","$TestDrive${directorySeparatorChar}Temp.Tests.ps1").AddParameter("Value",$scriptblock)
