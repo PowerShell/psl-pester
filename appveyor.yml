@@ -9,11 +9,11 @@ test_script:
       # Download development PowerShell
       Invoke-WebRequest -Headers @{"Authorization"="token $env:GITHUB_TOKEN";"Accept"="application/octet-stream"} -Uri 'https://api.github.com/repos/PowerShell/PowerShell/releases/assets/1536098' -OutFile powershell.zip
       Add-Type -A System.IO.Compression.FileSystem
-      [IO.Compression.ZipFile]::ExtractToDirectory("$pwd\powershell.zip", "$pwd\powershell")
+      [IO.Compression.ZipFile]::ExtractToDirectory("$pwd\powershell.zip", "$pwd\..\powershell")
       # No PowerShell v5, therefore cannot use: Expand-Archive powershell.zip
       # Run tests
       Write-Host -Foreground Green 'Run tests'
-      ./powershell/powershell.exe --noprofile -c "`$env:psmodulepath = '$pwd/powershell/Modules'; Import-Module -Verbose -Force ./Pester.psd1 ; Invoke-Pester -OutputFormat NUnitXml -OutputFile TestsResults.xml"
+      ../powershell/powershell.exe --noprofile -c "`$env:psmodulepath = '$pwd/../powershell/Modules'; Import-Module -Verbose -Force '$PWD/Pester.psd1'; Invoke-Pester -OutputFormat NUnitXml -OutputFile TestsResults.xml"
       # Fail the build if tests failed
       $x = [xml](cat -raw TestsResults.xml)
       if ([int]$x.'test-results'.failures -gt 0)
