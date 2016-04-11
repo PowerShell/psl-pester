@@ -13,7 +13,7 @@ test_script:
       # No PowerShell v5, therefore cannot use: Expand-Archive powershell.zip
       # Run tests
       Write-Host -Foreground Green 'Run tests'
-      ./powershell/powershell.exe -c "Import-Module -Verbose -Force ./Pester.psd1 ; Invoke-Pester -OutputFormat NUnitXml -OutputFile TestsResults.xml"
+      ./powershell/powershell.exe --noprofile -c "`$env:psmodulepath = '$pwd/powershell/Modules'; Import-Module -Verbose -Force ./Pester.psd1 ; Invoke-Pester -OutputFormat NUnitXml -OutputFile TestsResults.xml"
       # Fail the build if tests failed
       $x = [xml](cat -raw TestsResults.xml)
       if ([int]$x.'test-results'.failures -gt 0)
