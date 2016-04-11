@@ -60,7 +60,7 @@ function Get-CompareStringMessage {
 
     $expectedLength = $expected.Length
     $actualLength = $actual.Length
-    $maxLength = $expectedLength,$actualLength | Sort -Descending | select -First 1
+    $maxLength = $expectedLength,$actualLength | Sort-Object -Descending | select -First 1
 
     $differenceIndex = $null
     for ($i = 0; $i -lt $maxLength -and ($null -eq $differenceIndex); ++$i){
