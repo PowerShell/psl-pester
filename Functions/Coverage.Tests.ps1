@@ -4,9 +4,9 @@ InModuleScope Pester {
     Describe 'Code Coverage Analysis' {
         $root = (Get-PSDrive TestDrive).Root
 
-        $null = New-Item -Path $root\TestScript.ps1 -ItemType File -ErrorAction SilentlyContinue
+        $null = New-Item -Path $root${directorySeparatorChar}TestScript.ps1 -ItemType File -ErrorAction SilentlyContinue
 
-        Set-Content -Path $root\TestScript.ps1 -Value @'
+        Set-Content -Path $root${directorySeparatorChar}TestScript.ps1 -Value @'
             function FunctionOne
             {
                 function NestedFunction
@@ -35,13 +35,13 @@ InModuleScope Pester {
             $testState = New-PesterState -Path $root
 
             # Path deliberately duplicated to make sure the code doesn't produce multiple breakpoints for the same commands
-            Enter-CoverageAnalysis -CodeCoverage "$root\TestScript.ps1", "$root\TestScript.ps1" -PesterState $testState
+            Enter-CoverageAnalysis -CodeCoverage "$root${directorySeparatorChar}TestScript.ps1", "$root${directorySeparatorChar}TestScript.ps1" -PesterState $testState
 
             It 'Has the proper number of breakpoints defined' {
                 $testState.CommandCoverage.Count | Should Be 7
             }
 
-            $null = & "$root\TestScript.ps1"
+            $null = & "$root${directorySeparatorChar}TestScript.ps1"
             $coverageReport = Get-CoverageReport -PesterState $testState
 
             It 'Reports the proper number of executed commands' {
@@ -78,13 +78,13 @@ InModuleScope Pester {
         Context 'Single function with missed commands' {
             $testState = New-PesterState -Path $root
 
-            Enter-CoverageAnalysis -CodeCoverage @{Path = "$root\TestScript.ps1"; Function = 'FunctionTwo'} -PesterState $testState
+            Enter-CoverageAnalysis -CodeCoverage @{Path = "$root${directorySeparatorChar}TestScript.ps1"; Function = 'FunctionTwo'} -PesterState $testState
 
             It 'Has the proper number of breakpoints defined' {
                 $testState.CommandCoverage.Count | Should Be 1
             }
 
-            $null = & "$root\TestScript.ps1"
+            $null = & "$root${directorySeparatorChar}TestScript.ps1"
             $coverageReport = Get-CoverageReport -PesterState $testState
 
             It 'Reports the proper number of executed commands' {
@@ -113,13 +113,13 @@ InModuleScope Pester {
         Context 'Single function with no missed commands' {
             $testState = New-PesterState -Path $root
 
-            Enter-CoverageAnalysis -CodeCoverage @{Path = "$root\TestScript.ps1"; Function = 'FunctionOne'} -PesterState $testState
+            Enter-CoverageAnalysis -CodeCoverage @{Path = "$root${directorySeparatorChar}TestScript.ps1"; Function = 'FunctionOne'} -PesterState $testState
 
             It 'Has the proper number of breakpoints defined' {
                 $testState.CommandCoverage.Count | Should Be 5
             }
 
-            $null = & "$root\TestScript.ps1"
+            $null = & "$root${directorySeparatorChar}TestScript.ps1"
             $coverageReport = Get-CoverageReport -PesterState $testState
 
             It 'Reports the proper number of executed commands' {
@@ -148,13 +148,13 @@ InModuleScope Pester {
         Context 'Range of lines' {
             $testState = New-PesterState -Path $root
 
-            Enter-CoverageAnalysis -CodeCoverage @{Path = "$root\TestScript.ps1"; StartLine = 11; EndLine = 12 } -PesterState $testState
+            Enter-CoverageAnalysis -CodeCoverage @{Path = "$root${directorySeparatorChar}TestScript.ps1"; StartLine = 11; EndLine = 12 } -PesterState $testState
 
             It 'Has the proper number of breakpoints defined' {
                 $testState.CommandCoverage.Count | Should Be 2
             }
 
-            $null = & "$root\TestScript.ps1"
+            $null = & "$root${directorySeparatorChar}TestScript.ps1"
             $coverageReport = Get-CoverageReport -PesterState $testState
 
             It 'Reports the proper number of executed commands' {
@@ -183,13 +183,13 @@ InModuleScope Pester {
         Context 'Wildcard resolution' {
             $testState = New-PesterState -Path $root
 
-            Enter-CoverageAnalysis -CodeCoverage @{Path = "$root\*.ps1"; Function = '*' } -PesterState $testState
+            Enter-CoverageAnalysis -CodeCoverage @{Path = "$root${directorySeparatorChar}*.ps1"; Function = '*' } -PesterState $testState
 
             It 'Has the proper number of breakpoints defined' {
                 $testState.CommandCoverage.Count | Should Be 6
             }
 
-            $null = & "$root\TestScript.ps1"
+            $null = & "$root${directorySeparatorChar}TestScript.ps1"
             $coverageReport = Get-CoverageReport -PesterState $testState
 
             It 'Reports the proper number of executed commands' {
@@ -226,20 +226,20 @@ InModuleScope Pester {
 
     Describe 'Stripping common parent paths' {
         $paths = @(
-            'C:\Common\Folder\UniqueSubfolder1\File.ps1'
-            'C:\Common\Folder\UniqueSubfolder2\File2.ps1'
-            'C:\Common\Folder\UniqueSubfolder3\File3.ps1'
+            "${directorySeparatorChar}Common${directorySeparatorChar}Folder${directorySeparatorChar}UniqueSubfolder1${directorySeparatorChar}File.ps1"
+            "${directorySeparatorChar}Common${directorySeparatorChar}Folder${directorySeparatorChar}UniqueSubfolder2${directorySeparatorChar}File2.ps1"
+            "${directorySeparatorChar}Common${directorySeparatorChar}Folder${directorySeparatorChar}UniqueSubfolder3${directorySeparatorChar}File3.ps1"
         )
 
         $commonPath = Get-CommonParentPath -Path $paths
 
         It 'Identifies the correct parent path' {
-            $commonPath | Should Be 'C:\Common\Folder'
+            $commonPath | Should Be "${directorySeparatorChar}Common${directorySeparatorChar}Folder"
         }
 
         It 'Strips the common path correctly' {
             Get-RelativePath -Path $paths[0] -RelativeTo $commonPath |
-            Should Be 'UniqueSubfolder1\File.ps1'
+            Should Be "UniqueSubfolder1${directorySeparatorChar}File.ps1"
         }
     }
 
@@ -248,9 +248,9 @@ InModuleScope Pester {
         Describe 'Analyzing coverage of a DSC configuration' {
             $root = (Get-PSDrive TestDrive).Root
 
-            $null = New-Item -Path $root\TestScriptWithConfiguration.ps1 -ItemType File -ErrorAction SilentlyContinue
+            $null = New-Item -Path $root${directorySeparatorChar}TestScriptWithConfiguration.ps1 -ItemType File -ErrorAction SilentlyContinue
 
-            Set-Content -Path $root\TestScriptWithConfiguration.ps1 -Value @'
+            Set-Content -Path $root${directorySeparatorChar}TestScriptWithConfiguration.ps1 -Value @'
                 $line1 = $true   # Triggers breakpoint
                 $line2 = $true   # Triggers breakpoint
 
@@ -279,13 +279,13 @@ InModuleScope Pester {
 
             $testState = New-PesterState -Path $root
 
-            Enter-CoverageAnalysis -CodeCoverage "$root\TestScriptWithConfiguration.ps1" -PesterState $testState
+            Enter-CoverageAnalysis -CodeCoverage "$root${directorySeparatorChar}TestScriptWithConfiguration.ps1" -PesterState $testState
 
             It 'Has the proper number of breakpoints defined' {
                 $testState.CommandCoverage.Count | Should Be 7
             }
 
-            $null = . "$root\TestScriptWithConfiguration.ps1"
+            $null = . "$root${directorySeparatorChar}TestScriptWithConfiguration.ps1"
 
             $coverageReport = Get-CoverageReport -PesterState $testState
             It 'Reports the proper number of missed commands before running the configuration' {

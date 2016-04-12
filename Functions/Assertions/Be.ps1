@@ -10,7 +10,7 @@ function PesterBeFailureMessage($value, $expected) {
     }
     <#joining the output strings to a single string here, otherwise I get
        Cannot find an overload for "Exception" and the argument count: "4".
-       at line: 63 in C:\Users\nohwnd\github\pester\Functions\Assertions\Should.ps1
+       at line: 63 in C:/Users/nohwnd/github/pester/Functions/Assertions/Should.ps1
 
     This is a quickwin solution, doing the join in the Should directly might be better
     way of doing this. But I don't want to mix two problems.
@@ -34,7 +34,7 @@ function PesterBeExactlyFailureMessage($value, $expected) {
     }
     <#joining the output strings to a single string here, otherwise I get
        Cannot find an overload for "Exception" and the argument count: "4".
-       at line: 63 in C:\Users\nohwnd\github\pester\Functions\Assertions\Should.ps1
+       at line: 63 in C:/Users/nohwnd/github/pester/Functions/Assertions/Should.ps1
 
     This is a quickwin solution, doing the join in the Should directly might be better
     way of doing this. But I don't want to mix two problems.
@@ -60,7 +60,7 @@ function Get-CompareStringMessage {
 
     $expectedLength = $expected.Length
     $actualLength = $actual.Length
-    $maxLength = $expectedLength,$actualLength | Sort -Descending | select -First 1
+    $maxLength = $expectedLength,$actualLength | Sort-Object -Descending | select -First 1
 
     $differenceIndex = $null
     for ($i = 0; $i -lt $maxLength -and ($null -eq $differenceIndex); ++$i){

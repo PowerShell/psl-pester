@@ -9,7 +9,7 @@ function New-TestDrive ([Switch]$PassThru) {
     }
 
     #setup the test drive
-    if ( -not (Test-Path "${DriveName}:\") )
+    if ( -not (Test-Path "${DriveName}:${directorySeparatorChar}" ))
     {
         New-PSDrive -Name $DriveName -PSProvider FileSystem -Root $Path -Scope Global -Description "Pester test drive" | Out-Null
     }
@@ -71,7 +71,7 @@ function Remove-TestDrive {
     if ($pwd -like "$DriveName*" ) {
         #will staying in the test drive cause issues?
         #TODO review this
-        Write-Warning -Message "Your current path is set to ${pwd}:. You should leave ${DriveName}:\ before leaving Describe."
+        Write-Warning -Message "Your current path is set to ${pwd}:. You should leave ${DriveName}:${directorySeparatorChar} before leaving Describe."
     }
 
     if ( $Drive )
@@ -104,10 +104,10 @@ function Setup {
     $TestDriveName = Get-PSDrive TestDrive | Select -ExpandProperty Root
 
     if ($Dir) {
-        $item = New-Item -Name $Path -Path "${TestDriveName}\" -Type Container -Force
+        $item = New-Item -Name $Path -Path "${TestDriveName}${directorySeparatorChar}" -Type Container -Force
     }
     if ($File) {
-        $item = $Content | New-Item -Name $Path -Path "${TestDriveName}\" -Type File -Force
+        $item = $Content | New-Item -Name $Path -Path "${TestDriveName}${directorySeparatorChar}" -Type File -Force
     }
 
     if($PassThru) {

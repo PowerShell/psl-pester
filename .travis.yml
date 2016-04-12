@@ -7,4 +7,4 @@ before_install:
   - ./download.sh
   - sudo dpkg -i ./powershell.deb
 script:
-  - powershell -c "Invoke-Pester -EnableExit"
+  - powershell -c "Import-Module './Pester.psd1'; Invoke-Pester -EnableExit"

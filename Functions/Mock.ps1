@@ -80,33 +80,33 @@ Mock Set-Content {} -Verifiable -ParameterFilter { $Path -eq "some_path" -and $V
 When this mock is used, if the Mock is never invoked and Assert-VerifiableMocks is called, an exception will be thrown. The command behavior will do nothing since the ScriptBlock is empty.
 
 .EXAMPLE
-Mock Get-ChildItem { return @{FullName = "A_File.TXT"} } -ParameterFilter { $Path -and $Path.StartsWith($env:temp\1) }
-Mock Get-ChildItem { return @{FullName = "B_File.TXT"} } -ParameterFilter { $Path -and $Path.StartsWith($env:temp\2) }
-Mock Get-ChildItem { return @{FullName = "C_File.TXT"} } -ParameterFilter { $Path -and $Path.StartsWith($env:temp\3) }
+Mock Get-ChildItem { return @{FullName = "A_File.TXT"} } -ParameterFilter { $Path -and $Path.StartsWith($env:temp${directorySeparatorChar}1) }
+Mock Get-ChildItem { return @{FullName = "B_File.TXT"} } -ParameterFilter { $Path -and $Path.StartsWith($env:temp${directorySeparatorChar}2) }
+Mock Get-ChildItem { return @{FullName = "C_File.TXT"} } -ParameterFilter { $Path -and $Path.StartsWith($env:temp${directorySeparatorChar}3) }
 
 Multiple mocks of the same command may be used. The parameter filter determines which is invoked. Here, if Get-ChildItem is called on the "2" directory of the temp folder, then B_File.txt will be returned.
 
 .EXAMPLE
-Mock Get-ChildItem { return @{FullName="B_File.TXT"} } -ParameterFilter { $Path -eq "$env:temp\me" }
+Mock Get-ChildItem { return @{FullName="B_File.TXT"} } -ParameterFilter { $Path -eq "$env:temp${directorySeparatorChar}me" }
 Mock Get-ChildItem { return @{FullName="A_File.TXT"} } -ParameterFilter { $Path -and $Path.StartsWith($env:temp) }
 
-Get-ChildItem $env:temp\me
+Get-ChildItem $env:temp${directorySeparatorChar}me
 
 Here, both mocks could apply since both filters will pass. A_File.TXT will be returned because it was the most recent Mock created.
 
 .EXAMPLE
-Mock Get-ChildItem { return @{FullName = "B_File.TXT"} } -ParameterFilter { $Path -eq "$env:temp\me" }
+Mock Get-ChildItem { return @{FullName = "B_File.TXT"} } -ParameterFilter { $Path -eq "$env:temp${directorySeparatorChar}me" }
 Mock Get-ChildItem { return @{FullName = "A_File.TXT"} }
 
-Get-ChildItem c:\windows
+Get-ChildItem c:${directorySeparatorChar}windows
 
 Here, A_File.TXT will be returned. Since no filter was specified, it will apply to any call to Get-ChildItem that does not pass another filter.
 
 .EXAMPLE
-Mock Get-ChildItem { return @{FullName = "B_File.TXT"} } -ParameterFilter { $Path -eq "$env:temp\me" }
+Mock Get-ChildItem { return @{FullName = "B_File.TXT"} } -ParameterFilter { $Path -eq "$env:temp${directorySeparatorChar}me" }
 Mock Get-ChildItem { return @{FullName = "A_File.TXT"} }
 
-Get-ChildItem $env:temp\me
+Get-ChildItem $env:temp${directorySeparatorChar}me
 
 Here, B_File.TXT will be returned. Even though the filterless mock was created more recently. This illustrates that filterless Mocks are always evaluated last regardlss of their creation order.
 
@@ -256,7 +256,7 @@ about_Mocking
             }
         }
 
-        $newContent = Microsoft.PowerShell.Management\Get-Content function:\MockPrototype
+        $newContent = Microsoft.PowerShell.Management\Get-Content function:${directorySeparatorChar}MockPrototype
         $newContent = $newContent -replace '#FUNCTIONNAME#', $CommandName
         $newContent = $newContent -replace '#MODULENAME#', $ModuleName
 
@@ -284,16 +284,16 @@ about_Mocking
             {
                 param ( [string] $CommandName )
 
-                if ($ExecutionContext.InvokeProvider.Item.Exists("Function:\$CommandName"))
+                if ($ExecutionContext.InvokeProvider.Item.Exists("Function:${directorySeparatorChar}$CommandName"))
                 {
-                    $ExecutionContext.InvokeProvider.Item.Rename("Function:\$CommandName", "script:PesterIsMocking_$CommandName", $true)
+                    $ExecutionContext.InvokeProvider.Item.Rename("Function:${directorySeparatorChar}$CommandName", "script:PesterIsMocking_$CommandName", $true)
                 }
             }
 
             $null = Invoke-InMockScope -SessionState $mock.SessionState -ScriptBlock $scriptBlock -ArgumentList $CommandName
         }
 
-        $scriptBlock = { $ExecutionContext.InvokeProvider.Item.Set("Function:\script:$($args[0])", $args[1], $true, $true) }
+        $scriptBlock = { $ExecutionContext.InvokeProvider.Item.Set("Function:${directorySeparatorChar}script:$($args[0])", $args[1], $true, $true) }
         $null = Invoke-InMockScope -SessionState $mock.SessionState -ScriptBlock $scriptBlock -ArgumentList $CommandName, $mockScript
     }
 
@@ -630,10 +630,10 @@ function Exit-MockScope {
             [string] $Scope
         )
 
-        $ExecutionContext.InvokeProvider.Item.Remove("Function:\$CommandName", $false, $true, $true)
-        if ($ExecutionContext.InvokeProvider.Item.Exists("Function:\PesterIsMocking_$CommandName", $true, $true))
+        $ExecutionContext.InvokeProvider.Item.Remove("Function:${directorySeparatorChar}$CommandName", $false, $true, $true)
+        if ($ExecutionContext.InvokeProvider.Item.Exists("Function:${directorySeparatorChar}PesterIsMocking_$CommandName", $true, $true))
         {
-            $ExecutionContext.InvokeProvider.Item.Rename("Function:\PesterIsMocking_$CommandName", "$Scope$CommandName", $true)
+            $ExecutionContext.InvokeProvider.Item.Rename("Function:${directorySeparatorChar}PesterIsMocking_$CommandName", "$Scope$CommandName", $true)
         }
     }
 
@@ -678,13 +678,13 @@ function Validate-Command([string]$CommandName, [string]$ModuleName) {
 
         if ($null -ne $command -and $command.CommandType -eq 'Function')
         {
-            if ($ExecutionContext.InvokeProvider.Item.Exists("function:\global:$($command.Name)") -and
-                (Microsoft.PowerShell.Management\Get-Content "function:\global:$($command.Name)" -ErrorAction Stop) -eq $command.ScriptBlock)
+            if ($ExecutionContext.InvokeProvider.Item.Exists("function:${directorySeparatorChar}global:$($command.Name)") -and
+                (Microsoft.PowerShell.Management\Get-Content "function:${directorySeparatorChar}global:$($command.Name)" -ErrorAction Stop) -eq $command.ScriptBlock)
             {
                 $properties['Scope'] = 'global:'
             }
-            elseif ($ExecutionContext.InvokeProvider.Item.Exists("function:\script:$($command.Name)") -and
-                    (Microsoft.PowerShell.Management\Get-Content "function:\script:$($command.Name)" -ErrorAction Stop) -eq $command.ScriptBlock)
+            elseif ($ExecutionContext.InvokeProvider.Item.Exists("function:${directorySeparatorChar}script:$($command.Name)") -and
+                    (Microsoft.PowerShell.Management\Get-Content "function:${directorySeparatorChar}script:$($command.Name)" -ErrorAction Stop) -eq $command.ScriptBlock)
             {
                 $properties['Scope'] = 'script:'
             }

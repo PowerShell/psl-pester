@@ -96,8 +96,15 @@ Describe 'When calling Mock on an alias' {
         {
             foreach ($app in $dirExe)
             {
-                $parent = (Split-Path $app.Path -Parent).TrimEnd('\')
+                $parent = (Split-Path $app.Path -Parent).TrimEnd(${directorySeparatorChar})
+                if ( $directorySeparatorChar -eq "/" )
+                {
+                $pattern = "^$([regex]::Escape($parent))/?"
+                }
+                else
+                {
                 $pattern = "^$([regex]::Escape($parent))\\?"
+                }
 
                 $env:path = $env:path -split ';' -notmatch $pattern -join ';'
             }
@@ -142,31 +149,31 @@ Describe 'When calling Mock on a filter' {
 }
 
 Describe 'When calling Mock on an external script' {
-    $ps1File = New-Item 'TestDrive:\tempExternalScript.ps1' -ItemType File -Force
+    $ps1File = New-Item "TestDrive:${directorySeparatorChar}tempExternalScript.ps1" -ItemType File -Force
     $ps1File | Set-Content -Value "'I am tempExternalScript.ps1'"
 
-    Mock 'TestDrive:\tempExternalScript.ps1' {return 'I am not tempExternalScript.ps1'}
+    Mock "TestDrive:${directorySeparatorChar}tempExternalScript.ps1" {return 'I am not tempExternalScript.ps1'}
 
     <#
         # Invoking the script using its absolute path is not supported
 
-        $result = TestDrive:\tempExternalScript.ps1
+        $result = TestDrive:${directorySeparatorChar}tempExternalScript.ps1
         It 'Should Invoke the absolute-path-qualified mocked script using just the script name' {
             $result | Should Be 'I am not tempExternalScript.ps1'
         }
 
-        $result = & TestDrive:\tempExternalScript.ps1
+        $result = & TestDrive:${directorySeparatorChar}tempExternalScript.ps1
         It 'Should Invoke the absolute-path-qualified mocked script using the command-invocation operator (&)' {
             $result | Should Be 'I am not tempExternalScript.ps1'
         }
 
-        $result = . TestDrive:\tempExternalScript.ps1
+        $result = . TestDrive:${directorySeparatorChar}tempExternalScript.ps1
         It 'Should Invoke the absolute-path-qualified mocked script using dot source notation' {
             $result | Should Be 'I am not tempExternalScript.ps1'
         }
     #>
 
-    Push-Location TestDrive:\
+    Push-Location TestDrive:${directorySeparatorChar}
 
     try
     {
@@ -191,7 +198,7 @@ Describe 'When calling Mock on an external script' {
         <#
             # Invoking the script using only its relative path is not supported
 
-            $result = .\tempExternalScript.ps1
+            $result = & ".${directorySeparatorChar}tempExternalScript.ps1"
             It 'Should Invoke the relative-path-qualified mocked script' {
                 $result | Should Be 'I am not tempExternalScript.ps1'
             }
@@ -207,12 +214,23 @@ Describe 'When calling Mock on an external script' {
 }
 
 Describe 'When calling Mock on an application command' {
-    Mock schtasks.exe {return 'I am not schtasks.exe'}
-
-    $result = schtasks.exe
-
-    It 'Should Invoke the mocked script' {
-        $result | Should Be 'I am not schtasks.exe'
+    # Mock schtasks.exe {return 'I am not schtasks.exe'}
+    if ( Test-Path Variable:IsWindows ) { $onWindows = $IsWindows }
+    else { $onWindows = $true }
+    if ( $onWindows ) {
+        Mock ipconfig.exe { return 'I am not ipconfig' }
+        $result = ipconfig.exe
+        It 'Should Invoke the mocked script' {
+            $result | Should Be 'I am not ipconfig'
+        }
+    }
+    else
+    {
+        Mock ifconfig { return 'I am not ifconfig' }
+        $result = ifconfig
+        It 'Should Invoke the mocked script' {
+            $result | Should Be 'I am not ifconfig'
+        }
     }
 }
 
@@ -220,7 +238,7 @@ Describe "When calling Mock in the Describe block" {
     Mock Out-File {return "I am not Out-File"}
 
     It "Should mock Out-File successfully" {
-        $outfile = "test" | Out-File "TestDrive:\testfile.txt"
+        $outfile = "test" | Out-File "TestDrive:${directorySeparatorChar}testfile.txt"
         $outfile | Should Be "I am not Out-File"
     }
 }
@@ -246,7 +264,7 @@ Describe "When calling Mock on existing cmdlet to handle pipelined input" {
 Describe "When calling Mock on existing cmdlet with Common params" {
     Mock CommonParamFunction
 
-    $result=[string](Get-Content function:\CommonParamFunction)
+    $result=[string](Get-Content function:${directorySeparatorChar}CommonParamFunction)
 
     It "Should strip verbose" {
         $result.contains("`${Verbose}") | Should Be $false
@@ -832,7 +850,7 @@ Describe 'Mocking Cmdlets with dynamic parameters' {
     Mock Get-ChildItem -MockWith $mockWith -ParameterFilter { [bool]$CodeSigningCert }
 
     It 'Allows calls to be made with dynamic parameters (including parameter filters)' {
-        { Get-ChildItem -Path Cert:\ -CodeSigningCert } | Should Not Throw
+        { Get-ChildItem -Path Cert:${directorySeparatorChar} -CodeSigningCert } | Should Not Throw
         Assert-MockCalled Get-ChildItem
     }
 }
@@ -1178,7 +1196,7 @@ Describe 'Mocking functions with dynamic parameters' {
 
 Describe 'Mocking Cmdlets with dynamic parameters in a module' {
     New-Module -Name TestModule {
-        function PublicFunction   { Get-ChildItem -Path Cert:\ -CodeSigningCert }
+        function PublicFunction   { Get-ChildItem -Path Cert:${directorySeparatorChar} -CodeSigningCert }
     } | Import-Module -Force
 
     $mockWith = { if (-not $CodeSigningCert) { throw 'CodeSigningCert variable not found, or set to false!' } }
@@ -1205,7 +1223,7 @@ Describe 'DynamicParam blocks in other scopes' {
             DynamicParam {
                 if ($script:DoDynamicParam)
                 {
-                    Get-MockDynamicParameters -CmdletName Get-ChildItem -Parameters @{ Path = [string[]]'Cert:\' }
+                    Get-MockDynamicParameters -CmdletName Get-ChildItem -Parameters @{ Path = [string[]]"Cert:${directorySeparatorChar}" }
                 }
             }
 
@@ -1263,7 +1281,7 @@ Describe 'Parameter Filters and Common Parameters' {
 Describe "Mocking Get-ItemProperty" {
     Mock Get-ItemProperty { New-Object -typename psobject -property @{ Name = "fakeName" } }
     It "Does not fail with NotImplementedException" {
-        Get-ItemProperty -Path "HKLM:\Software\Key\" -Name "Property" | Select -ExpandProperty Name | Should Be fakeName
+        Get-ItemProperty -Path "HKLM:${directorySeparatorChar}Software${directorySeparatorChar}Key${directorySeparatorChar}" -Name "Property" | Select -ExpandProperty Name | Should Be fakeName
     }
 }
 
@@ -1322,7 +1340,7 @@ Describe 'When mocking a command that has an ArgumentList parameter with validat
 
     It 'Calls the mock properly' {
         $hash = @{ Result = $null }
-        $scriptBlock = { $hash.Result = Start-Process -FilePath cmd.exe -ArgumentList '/c dir c:\' }
+        $scriptBlock = { $hash.Result = Start-Process -FilePath cmd.exe -ArgumentList '/c dir c:/' }
 
         $scriptBlock | Should Not Throw
         $hash.Result | Should Be 'mocked'
