@@ -1,3 +1,14 @@
+NOTE
+====
+
+**This fork is a temporerely solution for [cross-platform PowerShell](https://github.com/PowerShell/PowerShell).
+We don't plan to maintain it or take any contributions.** 
+
+**We are working on the proper set of changes for [Pester](https://github.com/pester/Pester).
+This fork will be eventually removed.**
+
+------------------------------------------------------------------
+
 Pester 3.0 has been released!  To see a list of changes in this version, refer to the [What's New in Pester 3.0?](https://github.com/pester/Pester/wiki/What's-New-in-Pester-3.0%3F) Wiki page.
 
 ---
