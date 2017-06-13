@@ -299,6 +299,7 @@ InModuleScope Pester {
             #create state
             $TestResults = New-PesterState -Path TestDrive:${directorySeparatorChar}
             $testResults.EnterDescribe('Mocked Describe')
+            $testResults.EnterContext('Mocked Context')
             $TestResults.AddTestResult("Successful testcase",'Passed',(New-TimeSpan -Seconds 1))
 
             #export and validate the file
@@ -306,7 +307,7 @@ InModuleScope Pester {
             Export-NunitReport $testResults $testFile
             $xmlResult = [xml] (Get-Content $testFile)
             $xmlTestCase = $xmlResult.'test-results'.'test-suite'.'results'.'test-suite'.'results'.'test-case'
-            $xmlTestCase.name     | Should Be "Mocked Describe.Successful testcase"
+            $xmlTestCase.name     | Should Be "Mocked Describe.Mocked Context.Successful testcase"
             $xmlTestCase.result   | Should Be "Success"
             $xmlTestCase.time     | Should Be "1"
         }
@@ -315,6 +316,7 @@ InModuleScope Pester {
             #create state
             $TestResults = New-PesterState -Path TestDrive:${directorySeparatorChar}
             $testResults.EnterDescribe('Mocked Describe')
+            $testResults.EnterContext('Mocked Context')
             $time = [TimeSpan]25000000 #2.5 seconds
             $TestResults.AddTestResult("Failed testcase",'Failed',$time,'Assert failed: "Expected: Test. But was: Testing"','at line: 28 in  C:${directorySeparatorChar}Pester${directorySeparatorChar}Result.Tests.ps1')
 
@@ -323,7 +325,7 @@ InModuleScope Pester {
             Export-NunitReport $testResults $testFile
             $xmlResult = [xml] (Get-Content $testFile)
             $xmlTestCase = $xmlResult.'test-results'.'test-suite'.'results'.'test-suite'.'results'.'test-case'
-            $xmlTestCase.name                   | Should Be "Mocked Describe.Failed testcase"
+            $xmlTestCase.name                   | Should Be "Mocked Describe.Mocked Context.Failed testcase"
             $xmlTestCase.result                 | Should Be "Failure"
             $xmlTestCase.time                   | Should Be "2.5"
             $xmlTestCase.failure.message        | Should Be 'Assert failed: "Expected: Test. But was: Testing"'
@@ -453,6 +455,7 @@ InModuleScope Pester {
             #create state
             $TestResults = New-PesterState -Path TestDrive:${directorySeparatorChar}
             $testResults.EnterDescribe('Mocked Describe')
+            $testResults.EnterContext('Mocked Context')
 
             $TestResults.AddTestResult(
                 'Parameterized Testcase One',
@@ -497,10 +500,10 @@ InModuleScope Pester {
                 $testCase1 = $xmlTestSuite.results.'test-case'[0]
                 $testCase2 = $xmlTestSuite.results.'test-case'[1]
 
-                $testCase1.Name | Should Be 'Mocked Describe.Parameterized Testcase One'
+                $testCase1.Name | Should Be 'Mocked Describe.Mocked Context.Parameterized Testcase One'
                 $testCase1.Time | Should Be 1
 
-                $testCase2.Name | Should Be 'Mocked Describe.Parameterized Testcase <A>("Two",null,-42.67)'
+                $testCase2.Name | Should Be 'Mocked Describe.Mocked Context.Parameterized Testcase <A>("Two",null,-42.67)'
                 $testCase2.Time | Should Be 1
             }
 
