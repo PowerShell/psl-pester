@@ -114,7 +114,7 @@ about_TestDrive
         }
         catch
         {
-            $firstStackTraceLine = $_.InvocationInfo.PositionMessage.Trim() -split '\r?\n' | & $SafeCommands['Select-Object'] -First 1
+            $firstStackTraceLine = $_.InvocationInfo.PositionMessage.Trim() -split '\r?\n' | Select-Object -First 1
             $Pester.AddTestResult("Error occurred at $firstStackTraceLine", "Failed", $null, $_.Exception.Message, $firstStackTraceLine, $null, $null, $_)
             $Pester.TestResult[-1] | Write-PesterResult
         }
