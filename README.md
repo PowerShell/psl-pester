@@ -1,11 +1,10 @@
 NOTE
 ====
 
-**This fork is a temporary solution for [cross-platform PowerShell](https://github.com/PowerShell/PowerShell).
+**This fork was a temporary solution for [cross-platform PowerShell](https://github.com/PowerShell/PowerShell).
 We don't plan to maintain it or take any contributions.** 
 
-**We are working on the proper set of changes for [Pester](https://github.com/pester/Pester) to support cross-platform
-execution and this fork will be eventually removed.**
+**[Pester](https://github.com/pester/Pester) now supports cross-platform execution and this fork will be eventually removed.**
 
 ------------------------------------------------------------------
 
